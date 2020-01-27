@@ -1,2 +1,2 @@
 # VGA_Controller_FPGA
-Um controlador VGA descrito em SysemVerilog
+Um controlador VGA descrito em SystemVerilog
