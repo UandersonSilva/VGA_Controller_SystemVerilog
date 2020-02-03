@@ -1,34 +1,32 @@
 module vga_sync#(
-        parameter HORIZONTAL_LINE  = 800,                          
-        parameter HORIZONTAL_BACK_PORCH  = 144,
+        parameter HORIZONTAL_DISPLAY = 640,                          
+        parameter HORIZONTAL_BACK_PORCH  = 48,
         parameter HORIZONTAL_FRONT_PORCH = 16,
-        parameter VERTICAL_LINE  = 525,
-        parameter VERTICAL_BACK_PORCH  = 34,
-        parameter VERTICAL_FRONT_PORCH = 11,
-        parameter HORIZONTAL_SYNC_CYCLE = 96,
-        parameter VERTICAL_SYNC_CYCLE = 2,
-        parameter H_BLANK = HORIZONTAL_FRONT_PORCH+HORIZONTAL_SYNC_CYCLE
+        parameter HORIZONTAL_SYNC_PULSE = 96,
+        parameter HORIZONTAL_LINE  = HORIZONTAL_DISPLAY+HORIZONTAL_FRONT_PORCH+HORIZONTAL_SYNC_PULSE+HORIZONTAL_BACK_PORCH,
+        parameter VERTICAL_DISPLAY = 480,
+        parameter VERTICAL_BACK_PORCH  = 33,
+        parameter VERTICAL_FRONT_PORCH = 10,
+        parameter VERTICAL_SYNC_PULSE = 2,
+        parameter VERTICAL_LINE  = VERTICAL_DISPLAY+VERTICAL_FRONT_PORCH+VERTICAL_SYNC_PULSE+VERTICAL_BACK_PORCH,
+        parameter H_BLANK = HORIZONTAL_FRONT_PORCH+HORIZONTAL_SYNC_PULSE
     )
     (
-        reset_in,
-        vga_clk_in,
-        blank_n,
-        h_sync_out,
-        v_sync_out
-    );
-
-    input logic reset_in;
-    input logic vga_clk_in;
-    output logic blank_n;
-    output logic h_sync_out;
-    output logic v_sync_out;
+        input logic reset_in,
+        input logic vga_clk_in,
+        //output logic blank_n,
+        output logic h_sync_out,
+        output logic v_sync_out,
+        output logic [10:0] horizontal_position_out,
+        output logic [9:0] vertical_position_out
+    ); 
 
     logic [10:0] horizontal_count;
     logic [9:0]  vertical_count;
 
-    logic cHD, cVD, cDEN, horizontal_valid, vertical_valid;
+    logic h_sync_pulse_signal, v_sync_pulse_signal; /*cDEN, horizontal_valid, vertical_valid*/;
 
-    always_ff@(negedge vga_clk_in,posedge reset_in)
+    always_ff@(negedge vga_clk_in, posedge reset_in)
     begin
         if (reset_in)
         begin
@@ -50,18 +48,20 @@ module vga_sync#(
         end
     end
 
-    assign cHD = (horizontal_count<HORIZONTAL_SYNC_CYCLE) ? 1'b0: 1'b1;
-    assign cVD = (vertical_count<VERTICAL_SYNC_CYCLE) ? 1'b0: 1'b1; 
+    assign h_sync_pulse_signal = (horizontal_count>HORIZONTAL_DISPLAY+HORIZONTAL_FRONT_PORCH && horizontal_count <= HORIZONTAL_DISPLAY+HORIZONTAL_FRONT_PORCH+HORIZONTAL_SYNC_PULSE) ? 1'b0: 1'b1;
+    assign v_sync_pulse_signal = (vertical_count>VERTICAL_DISPLAY+VERTICAL_FRONT_PORCH && vertical_count<=VERTICAL_DISPLAY+VERTICAL_FRONT_PORCH+VERTICAL_SYNC_PULSE) ? 1'b0: 1'b1; 
 
-    assign horizontal_valid = (horizontal_count<(HORIZONTAL_LINE-HORIZONTAL_FRONT_PORCH) && horizontal_count>=HORIZONTAL_BACK_PORCH) ? 1'b1: 1'b0;
-    assign vertical_valid = (vertical_count<(VERTICAL_LINE-VERTICAL_FRONT_PORCH) && vertical_count>=VERTICAL_BACK_PORCH) ? 1'b1: 1'b0; 
+    //assign horizontal_valid = (horizontal_count<(HORIZONTAL_LINE-HORIZONTAL_FRONT_PORCH) && horizontal_count>=HORIZONTAL_BACK_PORCH) ? 1'b1: 1'b0;
+    //assign vertical_valid = (vertical_count<(VERTICAL_LINE-VERTICAL_FRONT_PORCH) && vertical_count>=VERTICAL_BACK_PORCH) ? 1'b1: 1'b0; 
 
-    assign cDEN = horizontal_valid && vertical_valid;
+    //assign cDEN = horizontal_valid && vertical_valid;
 
     always_ff@(negedge vga_clk_in)
     begin
-        h_sync_out <= cHD;
-        v_sync_out <= cVD;
-        blank_n <= cDEN;
+        h_sync_out <= h_sync_pulse_signal;
+        v_sync_out <= v_sync_pulse_signal;
+        horizontal_position_out <= horizontal_count;
+        vertical_position_out <= vertical_count;
+      //  blank_n <= cDEN;
     end
 endmodule
