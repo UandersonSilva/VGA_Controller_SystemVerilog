@@ -35,12 +35,8 @@ module pixel_receiver_test;
             for (pixel_x=0; pixel_x<WIDTH; pixel_x++)
             begin
                 if(
-                    pixel_x==0 || 
-                    pixel_x==WIDTH/2 || 
-                    (pixel_x==WIDTH-1) || 
-                    pixel_y==0 || 
-                    pixel_y==HEIGHT/2 || 
-                    (pixel_y==HEIGHT-1)
+                    ((pixel_x <= WIDTH/2) && (pixel_y <= HEIGHT/2)) || 
+                    ((pixel_x > WIDTH/2) && (pixel_y > HEIGHT/2)) 
                 )
                 begin
                     pixel = {(PIXEL_BITS){1'b1}};

@@ -7,13 +7,13 @@ WIDTH_BITS = 10
 HEIGHT_BITS = 9
 
 frame_file = 'frame.bin'
-data = numpy.zeros((SCREEN_HEIGHT, SCREEN_WIDTH, 3), dtype=numpy.uint8)# Create an array that stores (Byte, Byte, Byte) per [y, x] coordinate
+data = numpy.zeros((SCREEN_HEIGHT, SCREEN_WIDTH, 3), dtype=numpy.uint8)# Create an array that stores (Byte, Byte, Byte) in a [y, x] location
 
 binary_file = open(frame_file, 'r')
 if binary_file:
     address = 0
-    addresses = 2**(WIDTH_BITS+HEIGHT_BITS)
-    max_x = 2**WIDTH_BITS - 1 #max_x = 0000000011111111 (00FF)
+    #addresses = 2**(WIDTH_BITS+HEIGHT_BITS)
+    max_x = 2**WIDTH_BITS - 1 #max_x = 0000000011111111 (00FF) ***ILUSTRATION*** It doesn't represent the true value
     color_operand = 2**4 - 1 #color_operand = 000000001111 (00F)
 
     for binary in binary_file:
