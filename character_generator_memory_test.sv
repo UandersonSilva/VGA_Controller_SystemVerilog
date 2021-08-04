@@ -16,7 +16,7 @@ module character_generator_memory_test;
     logic [PIXEL_BITS - 1:0] pixel;
     logic [10:0]char_address;
     logic [7:0]char_line;
-    logic clock, video_on, v_sync, char_bit, figure_bit, pixel_bit, bit_value;
+    logic clock, video_on, h_sync, v_sync, char_bit, figure_bit, pixel_bit, bit_value;
     logic [ADDRESS_WIDTH - 1:0] address;
     logic [INSTRUCTION_WIDTH - 1:0] instruction;
 

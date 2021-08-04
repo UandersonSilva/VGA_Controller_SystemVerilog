@@ -26,139 +26,139 @@ module character_generator(
 
     always_comb 
     begin
-        if((pixel_x_in[9:3]>=10 && pixel_x_in[9:3]<=20) && (pixel_y_in[9:4]==1))//Show INSTRUCTION char_map(10, 1)
+        if((pixel_x_in[9:3]>=10 && pixel_x_in[9:3]<=20) && (pixel_y_in[9:4]==1))//Show INSTRUCTION tile_map(10, 1)
         begin
             char_address_out <= {words[0][pixel_x_in[9:3] - 10], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=22 && pixel_x_in[9:3]<=27) && (pixel_y_in[9:4]==1))//Show MEMORY char_map(22, 1)
+        else if((pixel_x_in[9:3]>=22 && pixel_x_in[9:3]<=27) && (pixel_y_in[9:4]==1))//Show MEMORY tile_map(22, 1)
         begin
             char_address_out <= {words[1][pixel_x_in[9:3] - 22], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=6 && pixel_x_in[9:3]<=12) && (pixel_y_in[9:4]==2))//Show ADDRESS char_map(6, 2)
+        else if((pixel_x_in[9:3]>=6 && pixel_x_in[9:3]<=12) && (pixel_y_in[9:4]==2))//Show ADDRESS tile_map(6, 2)
         begin
             char_address_out <= {words[2][pixel_x_in[9:3] - 6], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=22 && pixel_x_in[9:3]<=32) && (pixel_y_in[9:4]==2))//Show INSTRUCTION char_map(22, 2)
+        else if((pixel_x_in[9:3]>=22 && pixel_x_in[9:3]<=32) && (pixel_y_in[9:4]==2))//Show INSTRUCTION tile_map(22, 2)
         begin
             char_address_out <= {words[0][pixel_x_in[9:3] - 22], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=14 && pixel_x_in[9:3]<=17) && (pixel_y_in[9:4]==17))//Show DATA char_map(14, 17)
+        else if((pixel_x_in[9:3]>=14 && pixel_x_in[9:3]<=17) && (pixel_y_in[9:4]==17))//Show DATA tile_map(14, 17)
         begin
             char_address_out <= {words[3][pixel_x_in[9:3] - 14], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=19 && pixel_x_in[9:3]<=24) && (pixel_y_in[9:4]==17))//Show MEMORY char_map(19, 17)
+        else if((pixel_x_in[9:3]>=19 && pixel_x_in[9:3]<=24) && (pixel_y_in[9:4]==17))//Show MEMORY tile_map(19, 17)
         begin
             char_address_out <= {words[1][pixel_x_in[9:3] - 19], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=6 && pixel_x_in[9:3]<=12) && (pixel_y_in[9:4]==18))//Show ADDRESS char_map(6, 18)
+        else if((pixel_x_in[9:3]>=6 && pixel_x_in[9:3]<=12) && (pixel_y_in[9:4]==18))//Show ADDRESS tile_map(6, 18)
         begin
             char_address_out <= {words[2][pixel_x_in[9:3] - 6], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=26 && pixel_x_in[9:3]<=30) && (pixel_y_in[9:4]==18))//Show DATA char_map(26, 30)
+        else if((pixel_x_in[9:3]>=26 && pixel_x_in[9:3]<=30) && (pixel_y_in[9:4]==18))//Show DATA tile_map(26, 30)
         begin
             char_address_out <= {words[3][pixel_x_in[9:3] - 26], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=52) && (pixel_y_in[9:4]==3))//Show PC char_map(51, 3)
+        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=52) && (pixel_y_in[9:4]==3))//Show PC tile_map(51, 3)
         begin
             char_address_out <= {short_words[0][pixel_x_in[9:3] - 51], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=64 && pixel_x_in[9:3]<=74) && (pixel_y_in[9:4]==3))//Show INSTRUCTION char_map(64, 3)
+        else if((pixel_x_in[9:3]>=64 && pixel_x_in[9:3]<=74) && (pixel_y_in[9:4]==3))//Show INSTRUCTION tile_map(64, 3)
         begin
             char_address_out <= {words[0][pixel_x_in[9:3] - 64], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=76 && pixel_x_in[9:3]<=77) && (pixel_y_in[9:4]==3))//Show IN char_map(76, 3)
+        else if((pixel_x_in[9:3]>=76 && pixel_x_in[9:3]<=77) && (pixel_y_in[9:4]==3))//Show IN tile_map(76, 3)
         begin
             char_address_out <= {words[0][pixel_x_in[9:3] - 76], pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=46 && pixel_x_in[9:3]<=49) && (pixel_y_in>=98 && pixel_y_in<=113))//Show DATA char_map_x(46) line_map_y(98)
+        else if((pixel_x_in[9:3]>=46 && pixel_x_in[9:3]<=49) && (pixel_y_in>=98 && pixel_y_in<=113))//Show DATA tile_map_x(46) line_map_y(98)
         begin
             char_address_out <= {words[3][pixel_x_in[9:3] - 46], pixel_y_in[3:0] - 4'h2};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=57) && (pixel_y_in>=98 && pixel_y_in<=113))//Show ADDRESS char_map_x(51) line_map_y(98)
+        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=57) && (pixel_y_in>=98 && pixel_y_in<=113))//Show ADDRESS tile_map_x(51) line_map_y(98)
         begin
             char_address_out <= {words[2][pixel_x_in[9:3] - 51], pixel_y_in[3:0]  - 4'h2};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=67 && pixel_x_in[9:3]<=70) && (pixel_y_in>=98 && pixel_y_in<=113))//Show DATA char_map_x(67) line_map_y(98)
+        else if((pixel_x_in[9:3]>=67 && pixel_x_in[9:3]<=70) && (pixel_y_in>=98 && pixel_y_in<=113))//Show DATA tile_map_x(67) line_map_y(98)
         begin
             char_address_out <= {words[3][pixel_x_in[9:3] - 67], pixel_y_in[3:0] - 4'h2};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=72 && pixel_x_in[9:3]<=73) && (pixel_y_in>=98 && pixel_y_in<=113))//Show IN char_map_x(72) line_map_y(98)
+        else if((pixel_x_in[9:3]>=72 && pixel_x_in[9:3]<=73) && (pixel_y_in>=98 && pixel_y_in<=113))//Show IN tile_map_x(72) line_map_y(98)
         begin
             char_address_out <= {words[0][pixel_x_in[9:3] - 72], pixel_y_in[3:0] - 4'h2};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=52) && (pixel_y_in>=148 && pixel_y_in<=163))//Show IR char_map_x(51) line_map_y(148)
+        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=52) && (pixel_y_in>=148 && pixel_y_in<=163))//Show IR tile_map_x(51) line_map_y(148)
         begin
             char_address_out <= {short_words[1][pixel_x_in[9:3] - 51], pixel_y_in[3:0]  - 4'h4};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=69 && pixel_x_in[9:3]<=71) && (pixel_y_in>=148 && pixel_y_in<=163))//Show ACC char_map_x(69) line_map_y(148)
+        else if((pixel_x_in[9:3]>=69 && pixel_x_in[9:3]<=71) && (pixel_y_in>=148 && pixel_y_in<=163))//Show ACC tile_map_x(69) line_map_y(148)
         begin
             char_address_out <= {words[4][pixel_x_in[9:3] - 69], pixel_y_in[3:0] - 4'h4};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=50 && pixel_x_in[9:3]<=52) && (pixel_y_in>=198 && pixel_y_in<=213))//Show ALU char_map_x(50) line_map_y(198)
+        else if((pixel_x_in[9:3]>=50 && pixel_x_in[9:3]<=52) && (pixel_y_in>=198 && pixel_y_in<=213))//Show ALU tile_map_x(50) line_map_y(198)
         begin
             char_address_out <= {words[5][pixel_x_in[9:3] - 50], pixel_y_in[3:0] - 4'h6};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]==54) && (pixel_y_in>=198 && pixel_y_in<=213))//Show A char_map_x(54) line_map_y(198)
+        else if((pixel_x_in[9:3]==54) && (pixel_y_in>=198 && pixel_y_in<=213))//Show A tile_map_x(54) line_map_y(198)
         begin
             char_address_out <= {7'h41, pixel_y_in[3:0] - 4'h6};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=68 && pixel_x_in[9:3]<=70) && (pixel_y_in>=198 && pixel_y_in<=213))//Show ALU char_map_x(68) line_map_y(198)
+        else if((pixel_x_in[9:3]>=68 && pixel_x_in[9:3]<=70) && (pixel_y_in>=198 && pixel_y_in<=213))//Show ALU tile_map_x(68) line_map_y(198)
         begin
             char_address_out <= {words[5][pixel_x_in[9:3] - 68], pixel_y_in[3:0] - 4'h6};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]==72) && (pixel_y_in>=198 && pixel_y_in<=213))//Show B char_map_x(72) line_map_y(198)
+        else if((pixel_x_in[9:3]==72) && (pixel_y_in>=198 && pixel_y_in<=213))//Show B tile_map_x(72) line_map_y(198)
         begin
             char_address_out <= {7'h42, pixel_y_in[3:0] - 4'h6};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=56) && (pixel_y_in>=296 && pixel_y_in<=313))//Show CLOCK char_map_x(51) line_map_y(296)
+        else if((pixel_x_in[9:3]>=51 && pixel_x_in[9:3]<=56) && (pixel_y_in>=296 && pixel_y_in<=313))//Show CLOCK tile_map_x(51) line_map_y(296)
         begin
             char_address_out <= {words[6][pixel_x_in[9:3] - 51], pixel_y_in[3:0] - 4'h8};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in[9:3]>=68 && pixel_x_in[9:3]<=73) && (pixel_y_in>=296 && pixel_y_in<=313))//Show STATUS char_map_x(68) line_map_y(296)
+        else if((pixel_x_in[9:3]>=68 && pixel_x_in[9:3]<=73) && (pixel_y_in>=296 && pixel_y_in<=313))//Show STATUS tile_map_x(68) line_map_y(296)
         begin
             char_address_out <= {words[7][pixel_x_in[9:3] - 68], pixel_y_in[3:0] - 4'h8};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
@@ -170,31 +170,31 @@ module character_generator(
             char_bit_out <= char_line_in[pixel_x_in[2:0] - 3'd5];
         end
 
-        else if((pixel_x_in[9:3]==71) && (pixel_y_in>=329 && pixel_y_in<=344))//Show N char_map_x(71) line_map_y(329)
+        else if((pixel_x_in[9:3]==71) && (pixel_y_in>=329 && pixel_y_in<=344))//Show N tile_map_x(71) line_map_y(329)
         begin
             char_address_out <= {7'h4e, pixel_y_in[3:0] - 4'h9};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
         //---------------------------Drawing dynamic words---------------------------------
-        else if((pixel_x_in>=16 && pixel_x_in<=143) && (pixel_y_in>=48 && pixel_y_in<=207))//Show INSTRUCTION ADDRESSES values
+        else if((pixel_x_in[9:3]>=2 && pixel_x_in[9:3]<=17) && (pixel_y_in[9:4]>=3 && pixel_y_in[9:4]<=12))//Show INSTRUCTION ADDRESSES values
         begin
             char_address_out <= {7'h30 + bit_value_in, pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in>=160 && pixel_x_in<=287) && (pixel_y_in>=48 && pixel_y_in<=207))//Show INSTRUCTION values
+        else if((pixel_x_in[9:3]>=20 && pixel_x_in[9:3]<=35) && (pixel_y_in[9:4]>=3 && pixel_y_in[9:4]<=12))//Show INSTRUCTION values
         begin
             char_address_out <= {7'h30 + bit_value_in, pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in>=16 && pixel_x_in<=143) && (pixel_y_in>=304 && pixel_y_in<=463))//Show DATA ADDRESSES values
+        else if((pixel_x_in[9:3]>=2 && pixel_x_in[9:3]<=17) && (pixel_y_in[9:4]>=19 && pixel_y_in[9:4]<=28))//Show DATA ADDRESSES values
         begin
             char_address_out <= {7'h30 + bit_value_in, pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
         end
 
-        else if((pixel_x_in>=160 && pixel_x_in<=287) && (pixel_y_in>=304 && pixel_y_in<=463))//Show DATA values
+        else if((pixel_x_in[9:3]>=20 && pixel_x_in[9:3]<=35) && (pixel_y_in[9:4]>=19 && pixel_y_in[9:4]<=28))//Show DATA values
         begin
             char_address_out <= {7'h30 + bit_value_in, pixel_y_in[3:0]};
             char_bit_out <= char_line_in[pixel_x_in[2:0]];
@@ -262,6 +262,7 @@ module character_generator(
 
         else if((pixel_x_in>=420 && pixel_x_in<=426) && (pixel_y_in>=312 && pixel_y_in<=327))//Show CLOCK LEVEL value
         begin
+		    char_address_out <= {(11){1'b0}};
             char_bit_out <= bit_value_in;
         end
 
