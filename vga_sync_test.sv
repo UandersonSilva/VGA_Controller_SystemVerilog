@@ -2,27 +2,24 @@
 
 module vga_sync_test();
 
-    logic reset, vga_clk;
+    localparam
+        WIDTH_BITS = 10,
+        HEIGHT_BITS = 10;
+
+    logic clock;
     logic h_sync, v_sync, display_on;
-    logic [10:0] pixel_x;
-    logic [9:0] pixel_y;
+    logic [WIDTH_BITS - 1:0] pixel_x;
+    logic [HEIGHT_BITS - 1:0] pixel_y;
 
-clock_generator GCLOCK(vga_clk);
+    clock_generator GCLOCK(clock);
 
-vga_sync VGA_SYNC (
-        .reset_in(reset),
-        .vga_clk_in(vga_clk),
+    vga_sync VGA_SYNC (
+        .clock_in(clock),
         .h_sync_out(h_sync),
         .v_sync_out(v_sync),
         .display_on_out(display_on),
         .pixel_x_out(pixel_x),
         .pixel_y_out(pixel_y)
     );
-
-    initial
-    begin
-        reset = 1'b1;
-        #2 reset = 1'b0;
-    end
 
 endmodule
