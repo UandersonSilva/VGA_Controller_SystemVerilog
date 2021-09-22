@@ -4,7 +4,7 @@ module  font_rom (
         output logic [7:0] data_out
     ); 
   
-    logic [10:0] addr_reg;
+    //logic [10:0] addr_reg;
 
     //always_ff @(posedge font_rom_clk_in)
 	always @(addr_in)

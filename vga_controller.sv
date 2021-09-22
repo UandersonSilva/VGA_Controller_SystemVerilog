@@ -1,97 +1,123 @@
 module vga_controller#(
-        parameter VIDEO_WIDTH	= 640;
-        parameter VIDEO_HEIGHT	= 480;
+        WIDTH_BITS = 10,
+        HEIGHT_BITS = 10,
+        DATA_WIDTH = 16,
+        MEMORY_ADDRESS_WIDTH = 11,
+        AUX_ADDRESS_WIDTH = 5,
+        CPU_ELEMENTS = 10
     )
-    ( 
-        board_reset_in,
-        board_vga_clk_in,
-        board_blank_n,
-        board_h_sync_out,
-        board_v_sync_out,
-        vga_blue_out,
-        vga_green_out,
-        vga_red_out
+    (
+        input logic [DATA_WIDTH - 1:0] cpu_content_in, instruction_memory_in, data_memory_in,
+        input logic clock_in,
+        output logic [CPU_ELEMENTS - 1:0] content_enable_out,
+        output logic [MEMORY_ADDRESS_WIDTH - 1:0] instruction_address_out, data_address_out,
+        output logic [3:0] vga_red_out, vga_green_out, vga_blue_out,
+        output logic h_sync_out, v_sync_out
     );
 
-    input logic board_reset_in;
-    input logic board_vga_clk_in;
-    output logic board_blank_n;
-    output logic board_h_sync_out;
-    output logic board_v_sync_out;
-    output logic [3:0] vga_blue_out;
-    output logic [3:0] vga_green_out;  
-    output logic [3:0] vga_red_out;
+    logic divided_clock, h_sync, v_sync, video_on, figure_bit, char_bit, bit_value, aux_wr;
+    logic [WIDTH_BITS - 1:0] pixel_x;
+    logic [HEIGHT_BITS - 1:0] pixel_y;
+    logic [10:0] char_address; 
+    logic [7:0] char_line;
+    logic [AUX_ADDRESS_WIDTH - 1:0] aux_waddress, aux_raddress_0, aux_raddress_1;
+    logic [DATA_WIDTH - 1:0] aux_write_data, aux_data_0, aux_data_1;
+    logic [3:0] pixel_red, pixel_green, pixel_blue;
 
-    logic [18:0] address;
-    wire VGA_CLK_n;
-    logic [7:0] index;
-    logic [23:0] bgr_data_raw;
-    logic blank_n, h_sync, v_sync, reset;
-    logic [23:0] bgr_data;
 
-    assign reset = ~board_reset_in;
+    clock_divider DCLOCK(
+      .clock_f_in(clock_in),
+      .clock_fd2_out(divided_clock)
+    );
 
-    vga_sync VGA_SYNC (
-        .reset_in(reset),
-        .vga_clk_in(board_vga_clk_in),
-        .blank_n(blank_n),
+    vga_sync vga_sync0 (
+        .clock_in(divided_clock),
         .h_sync_out(h_sync),
-        .v_sync_out(v_sync)
+        .v_sync_out(v_sync),
+        .display_on_out(video_on),
+        .pixel_x_out(pixel_x),
+        .pixel_y_out(pixel_y)
     );
 
-    always_ff@(posedge board_vga_clk_in, negedge board_reset_in)
-    begin
-    if (!board_reset_in)
-        address<=19'd0;
-    else if (blank_n==1'b1)
-        address<=address+1;
-        else
-            address<=19'd0;
-    end
+    font_rom font_rom0(   
+        .addr_in(char_address),  
+        .data_out(char_line)
+    );
 
-    always_ff@(posedge board_vga_clk_in)
+    character_generator char_gen0(
+        .pixel_x_in(pixel_x),
+        .pixel_y_in(pixel_y),
+        .char_line_in(char_line),
+        .bit_value_in(bit_value),
+        .char_address_out(char_address),
+        .char_bit_out(char_bit)
+    );
+
+    figure_generator fig_gen0(
+        .pixel_x_in(pixel_x),
+        .pixel_y_in(pixel_y),
+        .pixel_bit_out(figure_bit)
+    );
+
+    tri_port_memory aux_mem0(
+      .data_in(aux_write_data),
+      .write_address_in(aux_waddress),
+      .address_0_in(aux_raddress_0),
+      .address_1_in(aux_raddress_1),
+      .memory_wr_in(aux_wr),
+      .read_clock_in(!clock_in),
+      .write_clock_in(divided_clock),
+      .data_0_out(aux_data_0),
+      .data_1_out(aux_data_1)
+    );
+
+    data_manager manager0(
+        .cpu_content_in(cpu_content_in),  
+        .instruction_memory_in(instruction_memory_in),
+        .data_memory_in(data_memory_in),
+        .aux_data_in(aux_data_0),
+        .clock_in(!divided_clock), 
+        .v_sync_in(v_sync),
+        .aux_wr_out(aux_wr),
+        .aux_data_out(aux_write_data),
+        .aux_raddress_out(aux_raddress_0),
+        .aux_waddress_out(aux_waddress),  
+        .content_enable_out(content_enable_out),
+        .instruction_address_out(instruction_address_out),
+        .data_address_out(data_address_out)
+    );
+
+    frame_generator frame_gen0(
+        .pixel_x_in(pixel_x), 
+        .pixel_y_in(pixel_y),
+        .figure_bit_in(figure_bit), 
+        .char_bit_in(char_bit),
+        .aux_data_in(aux_data_1),
+        .aux_raddress_out(aux_raddress_1),
+        .bit_value_out(bit_value),
+        .pixel_red_out(pixel_red),
+        .pixel_green_out(pixel_green),  
+        .pixel_blue_out(pixel_blue)
+    );
+
+    always_comb 
     begin
-    if (~board_reset_in)
-    begin
-        bgr_data<=24'h000000;
-    end
+        if(video_on)
+        begin
+            vga_red_out <= pixel_red;
+            vga_green_out <= pixel_green;
+            vga_blue_out <= pixel_blue;
+        end
+
         else
         begin
-        if (0<address && address <= VIDEO_WIDTH/3)
-            bgr_data <= {8'hff, 8'h00, 8'h00}; // blue
-        else if (address > VIDEO_WIDTH/3 && address <= VIDEO_WIDTH*2/3)
-            bgr_data <= {8'h00,8'hff, 8'h00};  // green
-        else if(address > VIDEO_WIDTH*2/3 && address <=VIDEO_WIDTH)
-            bgr_data <= {8'h00, 8'h00, 8'hff}; // red
-        else bgr_data <= 24'h0000; 
+            vga_red_out <= 4'b0000;
+            vga_green_out <= 4'b0000;
+            vga_blue_out <= 4'b0000;
+        end        
     end
 
-    assign vga_blue_out = bgr_data[23:20];
-    assign vga_green_out = bgr_data[15:12]; 
-    assign vga_red_out = bgr_data[7:4];
-
-    logic m_h_sync, m_v_sync, m_blank_n;
+    assign h_sync_out = h_sync;
+    assign v_sync_out = v_sync;
     
-    always_ff@(posedge board_vga_clk_in)
-    begin
-        m_h_sync <= h_sync;
-        m_v_sync <= v_sync;
-        m_blank_n <= blank_n;
-        board_h_sync_out <=m_h_sync;
-        board_v_sync_out <= m_v_sync;
-        board_blank_n <=m_blank_n;
-    end
-
-
-    ////for signaltap ii/////////////
-    wire [18:0] H_Cont/*synthesis noprune*/;
-    always@(posedge board_vga_clk_in, negedge board_reset_in)
-    begin
-    if (!board_reset_in)
-        H_Cont<=19'd0;
-    else if (m_h_sync == 1'b1)
-        H_Cont<=H_Cont+1;
-        else
-            H_Cont<=19'd0;
-    end
 endmodule

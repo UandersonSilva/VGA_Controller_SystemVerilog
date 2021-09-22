@@ -1,8 +1,8 @@
 module vga_sync#(
-    WIDTH_BITS = 10,
-    HEIGHT_BITS = 10
-)
-(
+        WIDTH_BITS = 10,
+        HEIGHT_BITS = 10
+    )
+    (
         input logic clock_in,
         output logic h_sync_out,
         output logic v_sync_out,

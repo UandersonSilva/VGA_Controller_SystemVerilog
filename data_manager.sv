@@ -2,18 +2,18 @@ module data_manager#(
         DATA_WIDTH = 16,
         MEMORY_ADDRESS_WIDTH = 11,
         AUX_ADDRESS_WIDTH = 5,
-        CPU_CONTENT_ELEMENTS = 10,
+        CPU_ELEMENTS = 10,
         MEMORY_ELEMENTS = 10
     )
     (
         input logic [DATA_WIDTH - 1:0] cpu_content_in, data_memory_in, instruction_memory_in,
         input logic [DATA_WIDTH - 1:0] aux_data_in,
-        input logic clock_in, sync_pulse_in,
+        input logic clock_in, v_sync_in,
         output logic aux_wr_out,
         output logic [DATA_WIDTH - 1:0] aux_data_out,
         output logic [AUX_ADDRESS_WIDTH - 1:0] aux_raddress_out, aux_waddress_out, 
         output logic [MEMORY_ADDRESS_WIDTH - 1:0] data_address_out, instruction_address_out,
-        output logic [CPU_CONTENT_ELEMENTS - 1:0] content_enable_out
+        output logic [CPU_ELEMENTS - 1:0] content_enable_out
     );
 
     localparam 
@@ -21,12 +21,17 @@ module data_manager#(
         _READ = 2'b01,
         _INCREMENT = 2'b10,
         _GO_FORWARD = 2'b11,
+        _IDLE = 2'b00,
+        _READ_CPU = 2'b01,
+        _READ_INSTRUCTION = 2'b10,
+        _READ_DATA = 2'b11,
         _LAST_ADDRESS = 2**MEMORY_ADDRESS_WIDTH - 1;
 
     logic [1:0] state = _DEFINE_ADDRESSES;
-    logic read_enable = 1'b0, read_finished = 1'b1, read_cpu = 1'b0, read_instruction = 1'b0, read_data = 1'b0;
-    logic [CPU_CONTENT_ELEMENTS - 1:0] content_enable = {(CPU_CONTENT_ELEMENTS){1'b0}};
-    logic [MEMORY_ADDRESS_WIDTH - 1:0] memory_address/*, final_address*/;
+    logic [1:0] phase = _IDLE;
+    logic read_enable = 1'b0, read_finished = 1'b1;
+    logic [CPU_ELEMENTS - 1:0] content_enable = {(CPU_ELEMENTS){1'b0}};
+    logic [MEMORY_ADDRESS_WIDTH - 1:0] memory_address;
     logic [4:0] read_counter;
 
     initial 
@@ -37,26 +42,26 @@ module data_manager#(
         aux_waddress_out = {AUX_ADDRESS_WIDTH{1'b0}};
         instruction_address_out = {MEMORY_ADDRESS_WIDTH{1'b0}};
         data_address_out = {MEMORY_ADDRESS_WIDTH{1'b0}};
-        content_enable_out = {CPU_CONTENT_ELEMENTS{1'b0}};        
+        content_enable_out = {CPU_ELEMENTS{1'b0}};        
     end
 
-    always_ff @(negedge sync_pulse_in or posedge read_finished)
+    /*Read trigger*/
+    always_ff @(negedge v_sync_in or posedge read_finished)
     begin
         read_enable <= !read_enable;            
     end 
    
-
     always_ff @(posedge clock_in) 
     begin 
-        if(read_enable & read_finished)
+        if(read_enable & read_finished)/*Start*/
         begin
             state <= _READ;
-            read_cpu <= 1'b1;
+            phase <= _READ_CPU;
         end
 
-        else
+        else /*Phase and state transitions*/
         begin
-            if(read_cpu)
+            if(phase == _READ_CPU)
             begin
                 case(state)
                     _READ:
@@ -66,7 +71,7 @@ module data_manager#(
 
                     _INCREMENT:
                     begin
-                        if(read_counter < CPU_CONTENT_ELEMENTS)
+                        if(read_counter < CPU_ELEMENTS)
                             state <= _READ;
                         else
                             state <= _GO_FORWARD;
@@ -75,8 +80,7 @@ module data_manager#(
                     _GO_FORWARD:
                     begin
                         state <= _DEFINE_ADDRESSES;
-                        read_cpu <= 1'b0;
-                        read_instruction <= 1'b1;
+                        phase <= _READ_INSTRUCTION;
                     end
 
                     default:
@@ -86,7 +90,7 @@ module data_manager#(
                 endcase
             end
 
-            else if(read_instruction | read_data)
+            else if((phase == _READ_INSTRUCTION) || (phase == _READ_DATA))
             begin
                 case(state)
                     _DEFINE_ADDRESSES:
@@ -109,13 +113,12 @@ module data_manager#(
 
                     _GO_FORWARD:
                     begin
-                        if(read_instruction)
+                        if(phase == _READ_INSTRUCTION)
                         begin
-                            read_instruction <= 1'b0;
-                            read_data <= 1'b1;
+                            phase <= _READ_DATA;
                         end
-                        else if (read_data)
-                            read_data <= 1'b0;
+                        else if (phase == _READ_DATA)
+                            phase <= _IDLE;
 
                         state <= _DEFINE_ADDRESSES;
                     end
@@ -132,18 +135,19 @@ module data_manager#(
         end       
     end
 
+    /*aux_data_out and memory addresses update*/
     always @* 
     begin
-        if(read_cpu)
+        if(phase == _READ_CPU)
             aux_data_out <= cpu_content_in;
 
-        else if(read_instruction)
+        else if(phase == _READ_INSTRUCTION)
         begin
             instruction_address_out <= memory_address;
             aux_data_out <= instruction_memory_in;
         end
 
-        else if(read_data)
+        else if(phase == _READ_DATA)
         begin
             data_address_out <= memory_address;
             aux_data_out <= data_memory_in;
@@ -157,7 +161,8 @@ module data_manager#(
         end        
     end
 
-	always @(read_enable, state)
+	/*State actions, according to the current phase*/
+    always @(read_enable, state)
     begin
         if(read_enable & read_finished)
         begin
@@ -165,7 +170,7 @@ module data_manager#(
             read_counter <= 0;
         end
 
-        if(read_cpu)
+        if(phase == _READ_CPU)
         begin
             case(state)
                 _READ:
@@ -187,42 +192,42 @@ module data_manager#(
                 begin
                     read_counter <= 1'b0;
                     aux_raddress_out <= 5'h00;
-                    content_enable <= {CPU_CONTENT_ELEMENTS{1'b0}};
-                    content_enable_out <= {CPU_CONTENT_ELEMENTS{1'b0}};
+                    content_enable <= {CPU_ELEMENTS{1'b0}};
+                    content_enable_out <= {CPU_ELEMENTS{1'b0}};
                 end
             endcase             
         end
 
-        else if(read_instruction | read_data)
+        else if((phase == _READ_INSTRUCTION) || (phase == _READ_DATA))
         begin
             case(state)
                 _DEFINE_ADDRESSES:
                 begin
                     if(aux_data_in < 5)
-                    begin
+                    begin/*0x000 to 0x009*/
                         memory_address <= {MEMORY_ADDRESS_WIDTH{1'b0}};
                     end
 
                     else if(aux_data_in > (_LAST_ADDRESS - 5))
-                    begin
+                    begin/*LAST_ADDRESS-11'h009 to LAST_ADDRESS*/
                         memory_address <= _LAST_ADDRESS - 11'h009;
                     end
 
                     else
-                    begin
+                    begin/*aux_data_in-11'h004 to aux_data_in+11'h005*/
                         memory_address <= aux_data_in - 11'h004;
                     end
 
-                    if(read_instruction)
-                        aux_waddress_out <= CPU_CONTENT_ELEMENTS; //In this case, 5'h00a
+                    if(phase == _READ_INSTRUCTION)
+                        aux_waddress_out <= CPU_ELEMENTS; //In this case, 5'h00a
                     else
-                        aux_waddress_out <= CPU_CONTENT_ELEMENTS + MEMORY_ELEMENTS;//In this case, 5'h014                  
+                        aux_waddress_out <= CPU_ELEMENTS + MEMORY_ELEMENTS;//In this case, 5'h014                  
                 end
 
                 _READ:
                 begin
                     aux_wr_out <= 1'b1;
-                    read_counter <= read_counter + 1'b1;;
+                    read_counter <= read_counter + 1'b1;
                 end
 
                 _INCREMENT:
@@ -236,13 +241,13 @@ module data_manager#(
                 begin
                     read_counter <= 1'b0;
 
-                    if(read_instruction)
+                    if(phase == _READ_INSTRUCTION)
                     begin
                         aux_raddress_out <= 5'h02;
                     end
 
-                    else if (read_data)
-                    begin
+                    else
+                    begin/*Final trigger*/
                         read_finished <= 1'b1;
                     end
                 end
@@ -254,7 +259,7 @@ module data_manager#(
             aux_wr_out <= 1'b0;
             aux_raddress_out <= {AUX_ADDRESS_WIDTH{1'b0}};
             aux_waddress_out <= {AUX_ADDRESS_WIDTH{1'b0}};
-            content_enable_out <= {CPU_CONTENT_ELEMENTS{1'b0}};
+            content_enable_out <= {CPU_ELEMENTS{1'b0}};
         end                
     end   
 endmodule
