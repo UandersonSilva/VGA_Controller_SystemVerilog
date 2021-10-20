@@ -25,7 +25,7 @@ module data_manager#(
         _READ_CPU = 2'b01,
         _READ_INSTRUCTION = 2'b10,
         _READ_DATA = 2'b11,
-        _LAST_ADDRESS = 2**MEMORY_ADDRESS_WIDTH - 1;
+        _FINAL_ADDRESS = 2**MEMORY_ADDRESS_WIDTH - 1;
 
     logic [1:0] state = _DEFINE_ADDRESSES;
     logic [1:0] phase = _IDLE;
@@ -208,9 +208,9 @@ module data_manager#(
                         memory_address <= {MEMORY_ADDRESS_WIDTH{1'b0}};
                     end
 
-                    else if(aux_data_in > (_LAST_ADDRESS - 5))
+                    else if(aux_data_in > (_FINAL_ADDRESS - 5))
                     begin/*LAST_ADDRESS-11'h009 to LAST_ADDRESS*/
-                        memory_address <= _LAST_ADDRESS - 11'h009;
+                        memory_address <= _FINAL_ADDRESS - 11'h009;
                     end
 
                     else

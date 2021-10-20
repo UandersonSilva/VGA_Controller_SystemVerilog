@@ -7,7 +7,6 @@ module frame_generator_memory_test;
         HEIGHT = 480,
         WIDTH_BITS = 10,
         HEIGHT_BITS = 10,
-        PIXEL_BITS = 12,
         DATA_WIDTH = 16,
         MEMORY_ADDRESS_WIDTH = 11,
         AUX_ADDRESS_WIDTH = 5,
@@ -16,7 +15,6 @@ module frame_generator_memory_test;
 
     logic [WIDTH_BITS - 1:0] pixel_x;
     logic [HEIGHT_BITS - 1:0] pixel_y;
-    logic [PIXEL_BITS - 1:0] pixel;
     logic [10:0]char_address;
     logic [7:0]char_line;
     logic clock, read_clock, write_clock, mw_clock, aux_wr; 
@@ -67,7 +65,7 @@ module frame_generator_memory_test;
     pixel_receiver pr0(
         .pixel_x_in(pixel_x),
         .pixel_y_in(pixel_y[8:0]),
-        .pixel_in(pixel),
+        .pixel_in({pixel_red, pixel_green, pixel_blue}),
         .clock_in(!clock),
         .video_on_in(video_on), 
         .v_sync_in(v_sync)
@@ -104,7 +102,6 @@ module frame_generator_memory_test;
         #1;
         for(i = 0; i < 30; i++)
         begin
-            pixel = {pixel_red, pixel_green, pixel_blue};
             aux_waddress = 11'h000 + i;
             data = 16'h000F + i;
             aux_wr = 1'b1;
@@ -117,7 +114,6 @@ module frame_generator_memory_test;
         while(1)
         begin
             #1;
-            pixel = {pixel_red, pixel_green, pixel_blue};
         end
     end
 endmodule

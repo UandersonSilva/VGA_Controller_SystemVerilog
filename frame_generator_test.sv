@@ -1,5 +1,5 @@
 `timescale 1 ns / 1 ps
-//To draw one frame, run it on ModelSim until the v_sync pulse (830 us in this case).
+//To draw one frame, run it on ModelSim until the v_sync pulse (840 us in this case).
 module frame_generator_test;
 
     localparam 
@@ -7,7 +7,6 @@ module frame_generator_test;
         HEIGHT = 480,
         WIDTH_BITS = 10,
         HEIGHT_BITS = 10,
-        PIXEL_BITS = 12,
         DATA_WIDTH = 16,
         MEMORY_ADDRESS_WIDTH = 11,
         AUX_ADDRESS_WIDTH = 5,
@@ -16,7 +15,6 @@ module frame_generator_test;
 
     logic [WIDTH_BITS - 1:0] pixel_x;
     logic [HEIGHT_BITS - 1:0] pixel_y;
-    logic [PIXEL_BITS - 1:0] pixel;
     logic [10:0]char_address;
     logic [7:0]char_line;
     logic clock, video_on, v_sync, char_bit, figure_bit, pixel_bit, bit_value;
@@ -59,7 +57,7 @@ module frame_generator_test;
     pixel_receiver pr0(
         .pixel_x_in(pixel_x),
         .pixel_y_in(pixel_y[8:0]),
-        .pixel_in(pixel),
+        .pixel_in({pixel_red, pixel_green, pixel_blue}),
         .clock_in(!clock),
         .video_on_in(video_on), 
         .v_sync_in(v_sync)
@@ -84,16 +82,15 @@ module frame_generator_test;
         while(1)
         begin
             #0.1;
-            pixel = {pixel_red, pixel_green, pixel_blue};
             if(aux_raddress == 5'h00)
             begin
-                aux_data = 16'h0000;
+                aux_data = 16'h0000; //16'h0003
                 #0.9;
             end
             
             else if(aux_raddress == 5'h02)
             begin
-                aux_data = 16'h07FF;
+                aux_data = 16'h07FF; //16'h000A
                 #0.9;
             end
 

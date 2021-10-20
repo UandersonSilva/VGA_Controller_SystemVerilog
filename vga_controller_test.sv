@@ -1,6 +1,5 @@
 `timescale 1 ns / 1 ps
-//At starting, run it on ModelSim for 2 frames (3320 us) to draw a frame with some information;
-//After that, to draw one frame, run it on ModelSim until the v_sync pulse (+ 1660 us per frame).
+//To draw one frame, run it on ModelSim until the v_sync pulse (1660 us per frame).
 module vga_controller_test;
 
     localparam
@@ -20,7 +19,6 @@ module vga_controller_test;
 
     logic [WIDTH_BITS - 1:0] pixel_x;
     logic [HEIGHT_BITS - 1:0] pixel_y;
-    //logic [PIXEL_BITS - 1:0] pixel;
     logic [DATA_WIDTH - 1:0] instruction_mem0, instr_0, data_mem0, data_0;
     logic [MEMORY_ADDRESS_WIDTH - 1:0] instruction_address_0, data_address_0;
     logic instr_wr, data_wr, h_sync_ext, v_sync_ext, video_on;
@@ -40,7 +38,7 @@ module vga_controller_test;
         .pixel_in({vga_red_out, vga_green_out, vga_blue_out}),
         .clock_in(!divided_clock),
         .video_on_in(video_on), 
-        .v_sync_in(v_sync_out)
+        .v_sync_in(v_sync_ext)
     );
 
     vga_sync vga_sync_E0(
@@ -94,7 +92,6 @@ module vga_controller_test;
     initial
     begin
         cpu_content_in = 16'h000A;
-        //pixel = {vga_red_out, vga_green_out, vga_blue_out}; 
         #3;
         for(i = 0; i < 50; i++)
         begin
@@ -116,14 +113,13 @@ module vga_controller_test;
             if(content_enable_out == 10'b0000000001)
             begin
                 cpu_content_in = 16'h0000 + j;
-                j = j + 1;
                 #1;
             end
 
             else if(content_enable_out == 10'b0000000100)
             begin
-                cpu_content_in = 16'h0005 + k;
-                k = k + 1;
+                cpu_content_in = 16'h0005 + j;
+                j = j + 1;
                 #1;
             end
 
